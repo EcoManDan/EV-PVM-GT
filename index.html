@@ -1,316 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <center>
   <meta charset="UTF-8">
-  <title id="pageTitle">PVM Waste Sort Game</title>
+  <title>PVM Waste Sort Game</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      text-align: center;
-    }
-    /* Initially hide form & quiz; final is hidden by class */
-    #content, #gameContainer { display: none; }
-    .hidden { display: none; }
+    body { font-family: Arial, sans-serif; margin: 20px; text-align: center; }
+    #content, #introSection, #gameContainer, #finalSection { display: none; }
+    /* Grid styles */
+    #diversionGrid, #answers { display: grid; gap: 20px; max-width: 800px; margin: 20px auto; }
+    #diversionGrid { grid-template-columns: repeat(4,1fr); }
+    #answers { grid-template-columns: repeat(4,1fr); justify-items: center; }
+    .diversionCard, .answerButton { text-align: center; background: none; border: none; cursor: pointer; }
+    .diversionCard img, .answerButton img { width: 100px; height: 100px; object-fit: cover; display: block; margin: 0 auto; }
+    .label { margin-top: 5px; font-size: 0.9em; font-weight: bold; }
+    #questionImage { width: 400px; height: 300px; object-fit: cover; margin-bottom: 10px; }
     #feedback { margin-top: 10px; font-weight: bold; }
-    .answerButton {
-      display: block;
-      margin: 10px auto;
-      padding: 10px;
-      width: 300px;
-      text-align: center;
-      cursor: pointer;
-    }
-    /* Updated dimensions: 400×300 */
-    #questionImage {
-      width: 400px;
-      height: 300px;
-      object-fit: cover;
-    }
     #score { margin-top: 20px; font-size: 1.2em; }
-    #languageSelection { margin-bottom: 20px; }
-    table {
-      width: 80%;
-      border-collapse: collapse;
-      margin: 10px auto;
-    }
-    table, th, td { border: 1px solid #333; }
-    th, td { padding: 8px; text-align: center; }
+    #introPreamble { max-width: 800px; margin: 0 auto 20px; text-align: left; }
+    #introPreamble ul { margin-left: 20px; }
+    table { width: 80%; border-collapse: collapse; margin: 10px auto; }
+    th, td { border: 1px solid #333; padding: 8px; text-align: center; }
   </style>
 </head>
 <body>
-  <!-- Language Selector -->
+  <!-- Language selector -->
   <div id="languageSelection">
     <h2>Select Language / Sélectionnez la langue</h2>
     <button id="langEnglish">English</button>
     <button id="langFrench">Français</button>
   </div>
 
+  <!-- Main container -->
   <div id="content">
-    <!-- User Info Form -->
+    <!-- User Info -->
     <div id="userInfo">
-      <h2 id="formHeading"></h2>
+      <h2>Please enter your information:</h2>
       <form id="userInfoForm">
-        <label id="labelFirstName"></label>
+        <label for="firstName">First Name:</label>
         <input type="text" id="firstName" required><br><br>
-        <label id="labelLastName"></label>
+        <label for="lastName">Last Name:</label>
         <input type="text" id="lastName" required><br><br>
-        <label id="labelEmail"></label>
+        <label for="email">ECCC Email Address:</label>
         <input type="email" id="email" required><br><br>
-        <button id="startGameButton" type="submit"></button>
+        <button type="submit">Continue</button>
       </form>
     </div>
 
-    <!-- Quiz Container -->
-    <div id="gameContainer">
-      <div id="questionSection">
-        <h2 id="questionCounter"></h2>
-        <img id="questionImage" src="" alt="">
-        <h3 id="questionText"></h3>
-        <div id="answers"></div>
+    <!-- Intro to Diversion Options -->
+    <div id="introSection">
+      <h2>Waste Diversion Options</h2>
+      <div id="introPreamble">
+        <p>Building-wide compost is finally available at Place Vincent Massey! You now have better options to divert your office waste!</p>
+        <p>Why is this important? Because ECCC is committed to:</p>
+        <ul>
+          <li>Diverting at least 75% of operational and plastic waste from the landfill, and</li>
+          <li>Reducing GHG emissions by at least 40% for federal facilities.</li>
+        </ul>
+        <p>This is totally doable, but we need your help putting waste into the right place!</p>
       </div>
+      <div id="diversionGrid"></div>
+      <button id="introContinue">Start Quiz</button>
+    </div>
+
+    <!-- Quiz -->
+    <div id="gameContainer">
+      <h2 id="questionCounter"></h2>
+      <img id="questionImage" src="" alt="Waste item">
+      <h3 id="questionText"></h3>
+      <div id="answers"></div>
       <div id="feedback"></div>
-      <button id="nextButton" class="hidden"></button>
+      <button id="nextButton" class="hidden">Next</button>
       <div id="score"></div>
     </div>
 
-    <!-- Final / Leaderboard -->
-    <div id="finalSection" class="hidden">
-      <h2 id="gameOverHeading"></h2>
+    <!-- Final -->
+    <div id="finalSection">
+      <h2>Game Over!</h2>
       <div id="finalScore"></div>
-      <div id="thankYouMsg"></div>
-      <h3 id="leaderboardHeading"></h3>
+      <div id="thankYouMsg">Thank you for playing!</div>
+      <h3>Leaderboard</h3>
       <div id="leaderboard"></div>
       <div id="submissionStatus"></div>
     </div>
   </div>
 
   <script>
-    // Use HTTPS so GitHub Pages (HTTPS) can call your InfinityFree backend
-    const apiBaseUrl = "https://ev-pvm-gt.infinityfreeapp.com/";
+    // Questions array
+    const questions = [
+      { item: "Yogurt Cup", image: "images/yogurt.jpg", correct: ["Recycle"] },
+      { item: "Pizza Box", image: "images/pizza-box.png", correct: ["Compost"] },
+      { item: "Milk Carton", image: "images/milk-carton.png", correct: ["Recycle"] },
+      { item: "Pop Can", image: "images/pop-can.png", correct: ["Consignaction Box", "Recycle"] },
+      { item: "Aluminum Foil", image: "images/aluminum-foil.png", correct: ["Recycle"] },
+      { item: "Wine Bottle", image: "images/wine-bottle.png", correct: ["Recycle"] },
+      { item: "Newspapers and Flyers", image: "images/newspapers.png", correct: ["Recycle"] },
+      { item: "Plastic beverage bottles", image: "images/pop-bottles.jpg", correct: ["Consignaction Box", "Recycle"] },
+      { item: "Soup can", image: "images/soup.png", correct: ["Recycle"] },
+      { item: "Plastic Wrap, bread bags, ziplocs", image: "images/bags.png", correct: ["Recycle"] },
+      { item: "Pens, Highlighters, Sharpies", image: "images/writing-utensils.png", correct: ["Office Supplies Box"] },
+      { item: "Juice and Beverage Boxes", image: "images/juice-box.png", correct: ["Recycle"] },
+      { item: "Chip bags, granola/candy bar wrappers, gum blister pack", image: "images/snack-wrapper.png", correct: ["Snack Wrapper Box"] },
+      { item: "Batteries", image: "images/batteries.png", correct: ["Battery Box"] },
+      { item: "Popsicle Sticks", image: "images/popsicle-sticks.png", correct: ["Compost"] },
+      { item: "Plastic Coffee Pod", image: "images/plastic-coffee-pod.png", correct: ["Coffee Pod Box"] },
+      { item: "Paper Coffee Cup and Lid", image: "images/coffee-cup.png", correct: ["Recycle"] },
+      { item: "Plastic utensils", image: "images/plastic-utensils.png", correct: ["Regular Garbage"] },
+      { item: "Styrofoam", image: "images/styrofoam.png", correct: ["Regular Garbage"] },
+      { item: "Coffee grounds and filters", image: "images/coffee-grounds.png", correct: ["Compost"] },
+      { item: "Food leftovers", image: "images/leftovers.png", correct: ["Compost"] },
+      { item: "Tea and tea bags", image: "images/teabags.png", correct: ["Compost"] },
+      { item: "Paper plates (unwaxed)", image: "images/paper-plates.png", correct: ["Compost"] },
+      { item: "Tissue", image: "images/tissue.png", correct: ["Compost"] },
+      { item: "Parchment Paper", image: "images/parchment.jpg", correct: ["Compost"] },
+      { item: "Disposable water bottle", image: "images/water.png", correct: ["Consignaction Box", "Recycle"] }
+    ];
+    const options = [
+      { key: "Recycle", img: "images/recycle.png" },
+      { key: "Compost", img: "images/compost.png" },
+      { key: "Coffee Pod Box", img: "images/coffee-pod-box.png" },
+      { key: "Snack Wrapper Box", img: "images/snack-wrapper-box.png" },
+      { key: "Office Supplies Box", img: "images/office-supplies-box.png" },
+      { key: "Consignaction Box", img: "images/consignaction-box.png" },
+      { key: "Battery Box", img: "images/battery-box.png" },
+      { key: "Regular Garbage", img: "images/garbage.png" }
+    ];
 
-    const languageData = {
-      en: {
-        title: "PVM Waste Sort Game",
-        formHeading: "Please enter your information:",
-        labelFirstName: "First Name: ",
-        labelLastName: "Last Name: ",
-        labelEmail: "ECCC Email Address: ",
-        startGame: "Start Game",
-        questionPrefix: "Where should the following item be sorted? ",
-        nextQuestion: "Next Question",
-        scoreLabel: "Score: ",
-        gameOver: "Game Over!",
-        finalScore: "Your final score is: ",
-        thankYouMessage: "Thank you for playing!",
-        leaderboardHeading: "Leaderboard",
-        leaderboardNoData: "No leaderboard data available.",
-        submissionSuccess: "Your information has been submitted successfully.",
-        submissionError: "There was an error submitting your information.",
-        feedbackCorrect: "Correct!",
-        feedbackIncorrect: "Incorrect! The correct answer is: ",
-        tableHeaderName: "Name",
-        tableHeaderScore: "Score",
-        bins: [
-          "Recycle","Compost","Coffee Pod Box","Snack Wrapper Box",
-          "Writing Utensil Box","Consignaction Box","Battery Box","Regular Garbage"
-        ],
-        questions: [
-          { item:"Yogurt Cup",            image:"images/yogurt.jpg",          correctAnswers:["Recycle"] },
-          { item:"Pizza Box",             image:"images/pizza-box.png",       correctAnswers:["Compost"] },
-          { item:"Milk Carton",           image:"images/milk-carton.png",     correctAnswers:["Recycle"] },
-          { item:"Pop Can",               image:"images/pop-can.png",         correctAnswers:["Consignaction Box","Recycle"] },
-          { item:"Aluminum Foil",         image:"images/aluminum-foil.png",   correctAnswers:["Recycle"] },
-          { item:"Wine Bottle",           image:"images/wine-bottle.png",     correctAnswers:["Recycle"] },
-          { item:"Newspapers and Flyers", image:"images/newspapers.png",      correctAnswers:["Recycle"] },
-          { item:"Plastic beverage bottles",image:"images/pop-bottles.jpg",   correctAnswers:["Consignaction Box","Recycle"] },
-          { item:"Soup can",              image:"images/soup.png",            correctAnswers:["Recycle"] },
-          { item:"Plastic Wrap, bread bags, ziplocs",image:"images/bags.png",   correctAnswers:["Recycle"] },
-          { item:"Pens, Highlighters, Sharpies", image:"images/writing-utensils.png", correctAnswers:["Writing Utensil Box"] },
-          { item:"Juice and Beverage Boxes", image:"images/juice-box.png",     correctAnswers:["Recycle"] },
-          { item:"Snack wrappers etc.",   image:"images/snack-wrapper.png",    correctAnswers:["Snack Wrapper Box"] },
-          { item:"Batteries",            image:"images/batteries.png",        correctAnswers:["Battery Box"] },
-          { item:"Popsicle Sticks",      image:"images/popsicle-sticks.png",  correctAnswers:["Compost"] },
-          { item:"Plastic Coffee Pod",    image:"images/plastic-coffee-pod.png",correctAnswers:["Coffee Pod Box"] },
-          { item:"Paper Coffee Cup and Lid", image:"images/coffee-cup.png",    correctAnswers:["Recycle"] },
-          { item:"Plastic utensils",     image:"images/plastic-utensils.png", correctAnswers:["Regular Garbage"] },
-          { item:"Styrofoam",            image:"images/styrofoam.png",        correctAnswers:["Regular Garbage"] },
-          { item:"Coffee grounds and filters", image:"images/coffee-grounds.png", correctAnswers:["Compost"] },
-          { item:"Food leftovers",       image:"images/leftovers.png",        correctAnswers:["Compost"] },
-          { item:"Tea and tea bags",     image:"images/teabags.png",          correctAnswers:["Compost"] },
-          { item:"Paper plates (unwaxed)", image:"images/paper-plates.png",   correctAnswers:["Compost"] },
-          { item:"Tissue",               image:"images/tissue.png",           correctAnswers:["Compost"] },
-          { item:"Parchment Paper",      image:"images/parchment.jpg",        correctAnswers:["Compost"] },
-          { item:"Disposable water bottle", image:"images/water.png",         correctAnswers:["Consignaction Box","Recycle"] }
-        ]
-      },
-      fr: {
-        title: "Jeu de tri des déchets PVM",
-        formHeading: "Veuillez entrer vos informations :",
-        labelFirstName: "Prénom : ",
-        labelLastName: "Nom de famille : ",
-        labelEmail: "Adresse courriel ECCC : ",
-        startGame: "Démarrer le jeu",
-        questionPrefix: "Où doit être trié cet article ? ",
-        nextQuestion: "Question suivante",
-        scoreLabel: "Score : ",
-        gameOver: "Fin du jeu !",
-        finalScore: "Votre score final est : ",
-        thankYouMessage: "Merci d'avoir joué !",
-        leaderboardHeading: "Tableau des scores",
-        leaderboardNoData: "Aucune donnée disponible pour le tableau des scores.",
-        submissionSuccess: "Vos informations ont été soumises avec succès.",
-        submissionError: "Une erreur est survenue lors de la soumission de vos informations.",
-        feedbackCorrect: "Correct !",
-        feedbackIncorrect: "Incorrect ! La bonne réponse est : ",
-        tableHeaderName: "Nom",
-        tableHeaderScore: "Score",
-        bins: [
-          "Recycle","Compost","Boîte à capsules de café","Boîte d'emballages de collation",
-          "Boîte à ustensiles d'écriture","Boîte de consignation","Poubelle pour batteries","Ordures"
-        ],
-        questions: [
-          { item:"Coupe de yaourt",            image:"images/yogurt.jpg",          correctAnswers:["Recycle"] },
-          { item:"Boîte à pizza",               image:"images/pizza-box.png",       correctAnswers:["Compost"] },
-          { item:"Carton de lait",              image:"images/milk-carton.png",     correctAnswers:["Recycle"] },
-          { item:"Canette",                     image:"images/pop-can.png",         correctAnswers:["Boîte de consignation","Recycle"] },
-          { item:"Papier aluminium",            image:"images/aluminum-foil.png",   correctAnswers:["Recycle"] },
-          { item:"Bouteille de vin",            image:"images/wine-bottle.png",     correctAnswers:["Recycle"] },
-          { item:"Journaux et dépliants",       image:"images/newspapers.png",      correctAnswers:["Recycle"] },
-          { item:"Bouteilles en plastique pour boissons", image:"images/pop-bottles.jpg", correctAnswers:["Boîte de consignation","Recycle"] },
-          { item:"Boîte de soupe",              image:"images/soup.png",            correctAnswers:["Recycle"] },
-          { item:"Emballages plastiques, sacs de pain, sacs ziploc", image:"images/bags.png", correctAnswers:["Recycle"] },
-          { item:"Stylos, surligneurs, feutres", image:"images/writing-utensils.png",correctAnswers:["Boîte à ustensiles d'écriture"] },
-          { item:"Boîtes de jus et de boissons", image:"images/juice-box.png",       correctAnswers:["Recycle"] },
-          { item:"Sachets de collation",        image:"images/snack-wrapper.png",   correctAnswers:["Boîte d'emballages de collation"] },
-          { item:"Batteries",                   image:"images/batteries.png",        correctAnswers:["Poubelle pour batteries"] },
-          { item:"Bâtonnets glacés",            image:"images/popsicle-sticks.png",  correctAnswers:["Compost"] },
-          { item:"Capsule de café en plastique", image:"images/plastic-coffee-pod.png",correctAnswers:["Boîte à capsules de café"] },
-          { item:"Tasse de café en carton et couvercle", image:"images/coffee-cup.png", correctAnswers:["Recycle"] },
-          { item:"Couverts en plastique",       image:"images/plastic-utensils.png", correctAnswers:["Ordures"] },
-          { item:"Polystyrène",                 image:"images/styrofoam.png",        correctAnswers:["Ordures"] },
-          { item:"Marcs et filtres à café",      image:"images/coffee-grounds.png",   correctAnswers:["Compost"] },
-          { item:"Restes alimentaires",          image:"images/leftovers.png",        correctAnswers:["Compost"] },
-          { item:"Thé et sachets de thé",        image:"images/teabags.png",          correctAnswers:["Compost"] },
-          { item:"Assiettes non cirées",         image:"images/paper-plates.png",     correctAnswers:["Compost"] },
-          { item:"Mouchoirs en papier",          image:"images/tissue.png",           correctAnswers:["Compost"] },
-          { item:"Papier parchemin",             image:"images/parchment.jpg",        correctAnswers:["Compost"] },
-          { item:"Bouteille d'eau jetable",      image:"images/water.png",            correctAnswers:["Boîte de consignation","Recycle"] }
-        ]
-      }
+    let idx=0, score=0, shuffled;
+    // Show language selector
+    document.getElementById('languageSelection').style.display='block';
+    document.getElementById('langEnglish').onclick=showUser;
+    document.getElementById('langFrench').onclick=showUser;
+    function showUser(){
+      document.getElementById('languageSelection').style.display='none';
+      document.getElementById('content').style.display='block';
+      document.getElementById('userInfo').style.display='block';
+    }
+    document.getElementById('userInfoForm').onsubmit=e=>{
+      e.preventDefault(); renderGrid();
+      document.getElementById('userInfo').style.display='none';
+      document.getElementById('introSection').style.display='block';
     };
-
-    let currentLang, currentText, currentQuestionIndex, score, userInfo, shuffledQuestions;
-
-    function shuffle(arr) {
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
-
-    function applyLanguage() {
-      document.getElementById("pageTitle").innerText = currentText.title;
-      document.getElementById("formHeading").innerText = currentText.formHeading;
-      document.getElementById("labelFirstName").innerText = currentText.labelFirstName;
-      document.getElementById("labelLastName").innerText = currentText.labelLastName;
-      document.getElementById("labelEmail").innerText = currentText.labelEmail;
-      document.getElementById("startGameButton").innerText = currentText.startGame;
-      document.getElementById("nextButton").innerText = currentText.nextQuestion;
-      document.getElementById("gameOverHeading").innerText = currentText.gameOver;
-      document.getElementById("score").innerText = currentText.scoreLabel + score;
-      document.title = currentText.title;
-    }
-
-    function loadQuestion() {
-      document.getElementById("feedback").innerText = "";
-      document.getElementById("nextButton").classList.add("hidden");
-      if (currentQuestionIndex >= shuffledQuestions.length) return endGame();
-      const q = shuffledQuestions[currentQuestionIndex];
-      document.getElementById("questionCounter").innerText = `Question ${currentQuestionIndex+1} of ${shuffledQuestions.length}`;
-      document.getElementById("questionText").innerText = currentText.questionPrefix + q.item;
-      document.getElementById("questionImage").src = q.image;
-      const answersDiv = document.getElementById("answers");
-      answersDiv.innerHTML = "";
-      currentText.bins.forEach(bin => {
-        const btn = document.createElement("button");
-        btn.className = "answerButton";
-        btn.innerText = bin;
-        btn.onclick = () => checkAnswer(bin);
-        answersDiv.appendChild(btn);
-      });
-      document.getElementById("score").innerText = currentText.scoreLabel + score;
-    }
-
-    function checkAnswer(choice) {
-      const q = shuffledQuestions[currentQuestionIndex];
-      const feedback = document.getElementById("feedback");
-      document.querySelectorAll("#answers button").forEach(b=>b.disabled=true);
-      if (q.correctAnswers.includes(choice)) {
-        feedback.innerText = currentText.feedbackCorrect;
-        score++;
-      } else {
-        feedback.innerText = currentText.feedbackIncorrect + q.correctAnswers.join(" or ");
-      }
-      document.getElementById("nextButton").classList.remove("hidden");
-      document.getElementById("score").innerText = currentText.scoreLabel + score;
-    }
-
-    function endGame() {
-      document.getElementById("gameContainer").style.display = "none";
-      document.getElementById("finalSection").classList.remove("hidden");
-      document.getElementById("finalScore").innerText = currentText.finalScore + score + " out of " + shuffledQuestions.length;
-      document.getElementById("thankYouMsg").innerText = currentText.thankYouMessage;
-      fetch(apiBaseUrl + "submit.php", {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({firstName:userInfo.firstName,lastName:userInfo.lastName,email:userInfo.email,score})
-      })
-      .then(r=>r.json()).then(_=>{
-        document.getElementById("submissionStatus").innerText = currentText.submissionSuccess;
-        return fetch(apiBaseUrl + "leaderboard.php");
-      })
-      .then(r=>r.json()).then(data=>{
-        const div = document.getElementById("leaderboard");
-        if (!data.length) {
-          div.innerText = currentText.leaderboardNoData;
-          return;
-        }
-        let html = `<table><tr><th>${currentText.tableHeaderName}</th><th>${currentText.tableHeaderScore}</th></tr>`;
-        data.forEach(e=>{
-          html += `<tr><td>${e.firstName} ${e.lastName}</td><td>${e.score}</td></tr>`;
-        });
-        html += "</table>";
-        div.innerHTML = html;
-      })
-      .catch(e=>{
-        document.getElementById("submissionStatus").innerText = currentText.submissionError;
-        console.error(e);
+    function renderGrid(){
+      const g=document.getElementById('diversionGrid');g.innerHTML='';
+      options.forEach(o=>{
+        const c=document.createElement('div');c.className='diversionCard';
+        c.innerHTML=`<img src="${o.img}" alt="${o.key}"><div class="label">${o.key}</div>`;
+        g.appendChild(c);
       });
     }
-
-    document.getElementById("nextButton").onclick = ()=>{currentQuestionIndex++;loadQuestion()};
-    document.getElementById("userInfoForm").onsubmit = e=>{
-      e.preventDefault();
-      userInfo={ firstName:document.getElementById("firstName").value,
-                 lastName: document.getElementById("lastName").value,
-                 email:    document.getElementById("email").value };
-      document.getElementById("userInfo").style.display="none";
-      document.getElementById("gameContainer").style.display="block";
-      loadQuestion();
+    document.getElementById('introContinue').onclick=e=>{
+      document.getElementById('introSection').style.display='none';
+      document.getElementById('gameContainer').style.display='block';
+      startQuiz();
     };
-    document.getElementById("langEnglish").onclick = ()=>{currentLang="en";currentText=languageData.en;startGame()};
-    document.getElementById("langFrench").onclick = ()=>{currentLang="fr";currentText=languageData.fr;startGame()};
-
-    function startGame(){
-      document.getElementById("languageSelection").style.display="none";
-      document.getElementById("content").style.display="block";
-      currentQuestionIndex=0;score=0;
-      shuffledQuestions=shuffle([...currentText.questions]);
-      applyLanguage();loadQuestion();
+    function startQuiz(){
+      shuffled=questions.sort(()=>0.5-Math.random()); idx=0; score=0;
+      showQuestion(); updateScore();
+    }
+    function showQuestion(){
+      const q=shuffled[idx];
+      document.getElementById('questionCounter').innerText=`Question ${idx+1} of ${shuffled.length}`;
+      document.getElementById('questionText').innerText=q.item;
+      document.getElementById('questionImage').src=q.image;
+      const a=document.getElementById('answers'); a.innerHTML='';
+      options.forEach(o=>{
+        const b=document.createElement('button');b.className='answerButton';
+        b.innerHTML=`<img src="${o.img}" alt="${o.key}"><div class="label">${o.key}</div>`;
+        b.onclick=()=>check(o.key);
+        a.appendChild(b);
+      });
+      document.getElementById('feedback').innerText='';
+      document.getElementById('nextButton').classList.add('hidden');
+    }
+    function check(choice){
+      const correct=shuffled[idx].correct;
+      document.querySelectorAll('#answers button').forEach(b=>b.disabled=true);
+      if(correct.includes(choice)){ score++; document.getElementById('feedback').innerText='Correct!'; }
+      else{ document.getElementById('feedback').innerText=`Incorrect! Correct: ${correct.join(' or ')}`; }
+      updateScore();
+      document.getElementById('nextButton').classList.remove('hidden');
+      document.getElementById('nextButton').onclick=()=>{
+        idx++; if(idx>=shuffled.length) end(); else showQuestion();
+      };
+    }
+    function updateScore(){ document.getElementById('score').innerText=`Score: ${score}`; }
+    function end(){
+      document.getElementById('gameContainer').style.display='none';
+      document.getElementById('finalSection').style.display='block';
+      document.getElementById('finalScore').innerText=`Your final score: ${score} of ${shuffled.length}`;
     }
   </script>
 </body>
-</center>
 </html>
