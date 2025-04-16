@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <center>
   <meta charset="UTF-8">
   <title id="pageTitle">PVM Waste Sort Game</title>
   <style>
@@ -10,12 +9,8 @@
       margin: 20px;
       text-align: center;
     }
-    /* Hide sections until needed */
     #content, #gameContainer, #finalSection { display: none; }
-    #feedback {
-      margin-top: 10px;
-      font-weight: bold;
-    }
+    #feedback { margin-top: 10px; font-weight: bold; }
     .answerButton {
       display: block;
       margin: 10px auto;
@@ -24,44 +19,28 @@
       text-align: center;
       cursor: pointer;
     }
-    /* Force uniform image size */
     #questionImage {
-      width: 300px;
-      height: 300px;
+      width: 300px; height: 300px;
       object-fit: cover;
     }
-    #score {
-      margin-top: 20px;
-      font-size: 1.2em;
-    }
-    #languageSelection {
-      margin-bottom: 20px;
-    }
-    /* Leaderboard styling */
+    #score { margin-top: 20px; font-size: 1.2em; }
+    #languageSelection { margin-bottom: 20px; }
     table {
-      width: 80%;
-      border-collapse: collapse;
+      width: 80%; border-collapse: collapse;
       margin: 10px auto;
     }
-    table, th, td {
-      border: 1px solid #333;
-    }
-    th, td {
-      padding: 8px;
-      text-align: center;
-    }
+    table, th, td { border: 1px solid #333; }
+    th, td { padding: 8px; text-align: center; }
   </style>
 </head>
 <body>
-  <!-- Language selector -->
   <div id="languageSelection">
-    <h2>Select Language / Sélectionnez la langue</h2>
+    <h2>Select Language / Sélectionnez la langue</h2>
     <button id="langEnglish">English</button>
     <button id="langFrench">Français</button>
   </div>
 
   <div id="content">
-    <!-- User info form -->
     <div id="userInfo">
       <h2 id="formHeading"></h2>
       <form id="userInfoForm">
@@ -75,7 +54,6 @@
       </form>
     </div>
 
-    <!-- Quiz -->
     <div id="gameContainer">
       <div id="questionSection">
         <h2 id="questionCounter"></h2>
@@ -88,7 +66,6 @@
       <div id="score"></div>
     </div>
 
-    <!-- Final / Leaderboard -->
     <div id="finalSection" class="hidden">
       <h2 id="gameOverHeading"></h2>
       <div id="finalScore"></div>
@@ -100,10 +77,8 @@
   </div>
 
   <script>
-    // API base (InfinityFree)
     const apiBaseUrl = "http://ev-pvm-gt.infinityfreeapp.com/";
 
-    // Text + data for both languages
     const languageData = {
       en: {
         title: "PVM Waste Sort Game",
@@ -127,37 +102,36 @@
         tableHeaderName: "Name",
         tableHeaderScore: "Score",
         bins: [
-          "Recycle", "Compost", "Coffee Pod Box", "Snack Wrapper Box",
-          "Writing Utensil Box", "Consignaction Box", "Battery Box",
-          "Regular Garbage"
+          "Recycle","Compost","Coffee Pod Box","Snack Wrapper Box",
+          "Writing Utensil Box","Consignaction Box","Battery Box","Regular Garbage"
         ],
         questions: [
-          { item: "Yogurt Cup", image: "images/yogurt.jpg", correctAnswers: ["Recycle"] },
-          { item: "Pizza Box", image: "images/pizza-box.png", correctAnswers: ["Compost"] },
-          { item: "Milk Carton", image: "images/milk-carton.png", correctAnswers: ["Recycle"] },
-          { item: "Pop Can", image: "images/pop-can.png", correctAnswers: ["Consignaction Box","Recycle"] },
-          { item: "Aluminum Foil", image: "images/aluminum-foil.png", correctAnswers: ["Recycle"] },
-          { item: "Wine Bottle", image: "images/wine-bottle.png", correctAnswers: ["Recycle"] },
-          { item: "Newspapers and Flyers", image: "images/newspapers.png", correctAnswers: ["Recycle"] },
-          { item: "Plastic beverage bottles", image: "images/pop-bottles.jpg", correctAnswers: ["Consignaction Box","Recycle"] },
-          { item: "Soup can", image: "images/soup.png", correctAnswers: ["Recycle"] },
-          { item: "Plastic Wrap, bread bags, ziplocs", image: "images/bags.png", correctAnswers: ["Recycle"] },
-          { item: "Pens, Highlighters, Sharpies", image: "images/writing-utensils.png", correctAnswers: ["Writing Utensil Box"] },
-          { item: "Juice and Beverage Boxes", image: "images/juice-box.png", correctAnswers: ["Recycle"] },
-          { item: "Chip bags, granola/candy bar wrappers, gum blister pack", image: "images/snack-wrapper.png", correctAnswers: ["Snack Wrapper Box"] },
-          { item: "Batteries", image: "images/batteries.png", correctAnswers: ["Battery Box"] },
-          { item: "Popsicle Sticks", image: "images/popsicle-sticks.png", correctAnswers: ["Compost"] },
-          { item: "Plastic Coffee Pod", image: "images/plastic-coffee-pod.png", correctAnswers: ["Coffee Pod Box"] },
-          { item: "Paper Coffee Cup and Lid", image: "images/coffee-cup.png", correctAnswers: ["Recycle"] },
-          { item: "Plastic utensils", image: "images/plastic-utensils.png", correctAnswers: ["Regular Garbage"] },
-          { item: "Styrofoam", image: "images/styrofoam.png", correctAnswers: ["Regular Garbage"] },
-          { item: "Coffee grounds and filters", image: "images/coffee-grounds.png", correctAnswers: ["Compost"] },
-          { item: "Food leftovers", image: "images/leftovers.png", correctAnswers: ["Compost"] },
-          { item: "Tea and tea bags", image: "images/teabags.png", correctAnswers: ["Compost"] },
-          { item: "Paper plates (unwaxed)", image: "images/paper-plates.png", correctAnswers: ["Compost"] },
-          { item: "Tissue", image: "images/tissue.png", correctAnswers: ["Compost"] },
-          { item: "Parchment Paper", image: "images/parchment.jpg", correctAnswers: ["Compost"] },
-          { item: "Disposable water bottle", image: "images/water.png", correctAnswers: ["Consignaction Box","Recycle"] }
+          { item:"Yogurt Cup",            image:"images/yogurt.jpg",          correctAnswers:["Recycle"] },
+          { item:"Pizza Box",             image:"images/pizza-box.png",       correctAnswers:["Compost"] },
+          { item:"Milk Carton",           image:"images/milk-carton.png",     correctAnswers:["Recycle"] },
+          { item:"Pop Can",               image:"images/pop-can.png",         correctAnswers:["Consignaction Box","Recycle"] },
+          { item:"Aluminum Foil",         image:"images/aluminum-foil.png",   correctAnswers:["Recycle"] },
+          { item:"Wine Bottle",           image:"images/wine-bottle.png",     correctAnswers:["Recycle"] },
+          { item:"Newspapers and Flyers", image:"images/newspapers.png",      correctAnswers:["Recycle"] },
+          { item:"Plastic beverage bottles",image:"images/pop-bottles.jpg",  correctAnswers:["Consignaction Box","Recycle"] },
+          { item:"Soup can",              image:"images/soup.png",            correctAnswers:["Recycle"] },
+          { item:"Plastic Wrap, bread bags, ziplocs",image:"images/bags.png", correctAnswers:["Recycle"] },
+          { item:"Pens, Highlighters, Sharpies", image:"images/writing-utensils.png", correctAnswers:["Writing Utensil Box"] },
+          { item:"Juice and Beverage Boxes", image:"images/juice-box.png",   correctAnswers:["Recycle"] },
+          { item:"Chip bags, granola/candy bar wrappers, gum blister pack", image:"images/snack-wrapper.png", correctAnswers:["Snack Wrapper Box"] },
+          { item:"Batteries",            image:"images/batteries.png",        correctAnswers:["Battery Box"] },
+          { item:"Popsicle Sticks",      image:"images/popsicle-sticks.png",  correctAnswers:["Compost"] },
+          { item:"Plastic Coffee Pod",    image:"images/plastic-coffee-pod.png",correctAnswers:["Coffee Pod Box"] },
+          { item:"Paper Coffee Cup and Lid", image:"images/coffee-cup.png", correctAnswers:["Recycle"] },
+          { item:"Plastic utensils",     image:"images/plastic-utensils.png", correctAnswers:["Regular Garbage"] },
+          { item:"Styrofoam",            image:"images/styrofoam.png",        correctAnswers:["Regular Garbage"] },
+          { item:"Coffee grounds and filters", image:"images/coffee-grounds.png", correctAnswers:["Compost"] },
+          { item:"Food leftovers",       image:"images/leftovers.png",        correctAnswers:["Compost"] },
+          { item:"Tea and tea bags",     image:"images/teabags.png",          correctAnswers:["Compost"] },
+          { item:"Paper plates (unwaxed)", image:"images/paper-plates.png",   correctAnswers:["Compost"] },
+          { item:"Tissue",               image:"images/tissue.png",           correctAnswers:["Compost"] },
+          { item:"Parchment Paper",      image:"images/parchment.jpg",        correctAnswers:["Compost"] },
+          { item:"Disposable water bottle", image:"images/water.png",        correctAnswers:["Consignaction Box","Recycle"] }
         ]
       },
       fr: {
@@ -182,37 +156,36 @@
         tableHeaderName: "Nom",
         tableHeaderScore: "Score",
         bins: [
-          "Recycle", "Compost", "Boîte à capsules de café", "Boîte d'emballages de collation",
-          "Boîte à ustensiles d'écriture", "Boîte de consignation", "Poubelle pour batteries",
-          "Ordures"
+          "Recycle","Compost","Boîte à capsules de café","Boîte d'emballages de collation",
+          "Boîte à ustensiles d'écriture","Boîte de consignation","Poubelle pour batteries","Ordures"
         ],
         questions: [
-          { item: "Coupe de yaourt", image: "images/yogurt.jpg", correctAnswers: ["Recycle"] },
-          { item: "Boîte à pizza", image: "images/pizza-box.png", correctAnswers: ["Compost"] },
-          { item: "Carton de lait", image: "images/milk-carton.png", correctAnswers: ["Recycle"] },
-          { item: "Canette", image: "images/pop-can.png", correctAnswers: ["Boîte de consignation","Recycle"] },
-          { item: "Papier aluminium", image: "images/aluminum-foil.png", correctAnswers: ["Recycle"] },
-          { item: "Bouteille de vin", image: "images/wine-bottle.png", correctAnswers: ["Recycle"] },
-          { item: "Journaux et dépliants", image: "images/newspapers.png", correctAnswers: ["Recycle"] },
-          { item: "Bouteilles en plastique pour boissons", image: "images/pop-bottles.jpg", correctAnswers: ["Boîte de consignation","Recycle"] },
-          { item: "Boîte de soupe", image: "images/soup.png", correctAnswers: ["Recycle"] },
-          { item: "Emballages plastiques, sacs de pain, sacs ziploc", image: "images/bags.png", correctAnswers: ["Recycle"] },
-          { item: "Stylos, surligneurs, feutres", image: "images/writing-utensils.png", correctAnswers: ["Boîte à ustensiles d'écriture"] },
-          { item: "Boîtes de jus et de boissons", image: "images/juice-box.png", correctAnswers: ["Recycle"] },
-          { item: "Sachets de chips, emballages de barres granola/candy, sacs ziploc, blister de chewing-gum", image: "images/snack-wrapper.png", correctAnswers: ["Boîte d'emballages de collation"] },
-          { item: "Batteries", image: "images/batteries.png", correctAnswers: ["Poubelle pour batteries"] },
-          { item: "Bâtonnets glacés", image: "images/popsicle-sticks.png", correctAnswers: ["Compost"] },
-          { item: "Capsule de café en plastique", image: "images/plastic-coffee-pod.png", correctAnswers: ["Boîte à capsules de café"] },
-          { item: "Tasse de café en carton et couvercle", image: "images/coffee-cup.png", correctAnswers: ["Recycle"] },
-          { item: "Couverts en plastique", image: "images/plastic-utensils.png", correctAnswers: ["Ordures"] },
-          { item: "Polystyrène", image: "images/styrofoam.png", correctAnswers: ["Ordures"] },
-          { item: "Marcs et filtres à café", image: "images/coffee-grounds.png", correctAnswers: ["Compost"] },
-          { item: "Restes alimentaires", image: "images/leftovers.png", correctAnswers: ["Compost"] },
-          { item: "Thé et sachets de thé", image: "images/teabags.png", correctAnswers: ["Compost"] },
-          { item: "Assiettes en carton (non cirées)", image: "images/paper-plates.png", correctAnswers: ["Compost"] },
-          { item: "Mouchoirs en papier", image: "images/tissue.png", correctAnswers: ["Compost"] },
-          { item: "Papier parchemin", image: "images/parchment.jpg", correctAnswers: ["Compost"] },
-          { item: "Bouteille d'eau en plastique jetable", image: "images/water.png", correctAnswers: ["Boîte de consignation","Recycle"] }
+          { item:"Coupe de yaourt",            image:"images/yogurt.jpg",          correctAnswers:["Recycle"] },
+          { item:"Boîte à pizza",               image:"images/pizza-box.png",       correctAnswers:["Compost"] },
+          { item:"Carton de lait",              image:"images/milk-carton.png",     correctAnswers:["Recycle"] },
+          { item:"Canette",                     image:"images/pop-can.png",         correctAnswers:["Boîte de consignation","Recycle"] },
+          { item:"Papier aluminium",            image:"images/aluminum-foil.png",   correctAnswers:["Recycle"] },
+          { item:"Bouteille de vin",            image:"images/wine-bottle.png",     correctAnswers:["Recycle"] },
+          { item:"Journaux et dépliants",       image:"images/newspapers.png",      correctAnswers:["Recycle"] },
+          { item:"Bouteilles en plastique pour boissons", image:"images/pop-bottles.jpg", correctAnswers:["Boîte de consignation","Recycle"] },
+          { item:"Boîte de soupe",              image:"images/soup.png",            correctAnswers:["Recycle"] },
+          { item:"Emballages plastiques, sacs de pain, sacs ziploc", image:"images/bags.png", correctAnswers:["Recycle"] },
+          { item:"Stylos, surligneurs, feutres", image:"images/writing-utensils.png",correctAnswers:["Boîte à ustensiles d'écriture"] },
+          { item:"Boîtes de jus et de boissons", image:"images/juice-box.png",      correctAnswers:["Recycle"] },
+          { item:"Sachets de chips, emballages de barres granola/candy, sacs ziploc, blister de chewing-gum", image:"images/snack-wrapper.png", correctAnswers:["Boîte d'emballages de collation"] },
+          { item:"Batteries",                   image:"images/batteries.png",        correctAnswers:["Poubelle pour batteries"] },
+          { item:"Bâtonnets glacés",            image:"images/popsicle-sticks.png",  correctAnswers:["Compost"] },
+          { item:"Capsule de café en plastique", image:"images/plastic-coffee-pod.png",correctAnswers:["Boîte à capsules de café"] },
+          { item:"Tasse de café en carton et couvercle", image:"images/coffee-cup.png", correctAnswers:["Recycle"] },
+          { item:"Couverts en plastique",       image:"images/plastic-utensils.png", correctAnswers:["Ordures"] },
+          { item:"Polystyrène",                 image:"images/styrofoam.png",        correctAnswers:["Ordures"] },
+          { item:"Marcs et filtres à café",     image:"images/coffee-grounds.png",   correctAnswers:["Compost"] },
+          { item:"Restes alimentaires",         image:"images/leftovers.png",        correctAnswers:["Compost"] },
+          { item:"Thé et sachets de thé",       image:"images/teabags.png",          correctAnswers:["Compost"] },
+          { item:"Assiettes en carton (non cirées)", image:"images/paper-plates.png", correctAnswers:["Compost"] },
+          { item:"Mouchoirs en papier",         image:"images/tissue.png",           correctAnswers:["Compost"] },
+          { item:"Papier parchemin",            image:"images/parchment.jpg",        correctAnswers:["Compost"] },
+          { item:"Bouteille d'eau en plastique jetable", image:"images/water.png", correctAnswers:["Boîte de consignation","Recycle"] }
         ]
       }
     };
@@ -243,15 +216,11 @@
     function loadQuestion() {
       document.getElementById("feedback").innerText = "";
       document.getElementById("nextButton").classList.add("hidden");
-      if (currentQuestionIndex >= shuffledQuestions.length) {
-        return endGame();
-      }
+      if (currentQuestionIndex >= shuffledQuestions.length) return endGame();
       const q = shuffledQuestions[currentQuestionIndex];
-      document.getElementById("questionCounter").innerText =
-        `Question ${currentQuestionIndex + 1} of ${shuffledQuestions.length}`;
+      document.getElementById("questionCounter").innerText = `Question ${currentQuestionIndex+1} of ${shuffledQuestions.length}`;
       document.getElementById("questionText").innerText = currentText.questionPrefix + q.item;
       document.getElementById("questionImage").src = q.image;
-
       const answersDiv = document.getElementById("answers");
       answersDiv.innerHTML = "";
       currentText.bins.forEach(bin => {
@@ -267,8 +236,7 @@
     function checkAnswer(choice) {
       const q = shuffledQuestions[currentQuestionIndex];
       const feedback = document.getElementById("feedback");
-      document.querySelectorAll("#answers button").forEach(b => b.disabled = true);
-
+      document.querySelectorAll("#answers button").forEach(b=>b.disabled=true);
       if (q.correctAnswers.includes(choice)) {
         feedback.innerText = currentText.feedbackCorrect;
         score++;
@@ -282,36 +250,26 @@
     function endGame() {
       document.getElementById("gameContainer").style.display = "none";
       document.getElementById("finalSection").classList.remove("hidden");
-      document.getElementById("finalScore").innerText =
-        currentText.finalScore + score + " out of " + shuffledQuestions.length;
+      document.getElementById("finalScore").innerText = currentText.finalScore + score + " out of " + shuffledQuestions.length;
       document.getElementById("thankYouMsg").innerText = currentText.thankYouMessage;
-
-      // POST to submit.php
       fetch(apiBaseUrl + "submit.php", {
-        method: "POST",
-        headers: { "Content-Type":"application/json" },
-        body: JSON.stringify({
-          firstName: userInfo.firstName,
-          lastName: userInfo.lastName,
-          email: userInfo.email,
-          score
-        })
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({firstName:userInfo.firstName,lastName:userInfo.lastName,email:userInfo.email,score})
       })
       .then(r=>r.json()).then(_=>{
         document.getElementById("submissionStatus").innerText = currentText.submissionSuccess;
         return fetch(apiBaseUrl + "leaderboard.php");
       })
-      .then(r=>r.json())
-      .then(data=>displayLeaderboard(data))
-      .catch(err=>{
+      .then(r=>r.json()).then(displayLeaderboard)
+      .catch(e=>{
         document.getElementById("submissionStatus").innerText = currentText.submissionError;
-        console.error(err);
+        console.error(e);
       });
     }
 
     function displayLeaderboard(data) {
       const div = document.getElementById("leaderboard");
-      if (!data || !data.length) {
+      if (!data.length) {
         div.innerText = currentText.leaderboardNoData;
         return;
       }
@@ -323,39 +281,26 @@
       div.innerHTML = html;
     }
 
-    // UI event hookups
-    document.getElementById("nextButton").onclick = () => {
-      currentQuestionIndex++;
-      loadQuestion();
-    };
-    document.getElementById("userInfoForm").onsubmit = e => {
+    document.getElementById("nextButton").onclick = ()=>{currentQuestionIndex++;loadQuestion()};
+    document.getElementById("userInfoForm").onsubmit = e=>{
       e.preventDefault();
-      userInfo = {
-        firstName: document.getElementById("firstName").value,
-        lastName: document.getElementById("lastName").value,
-        email: document.getElementById("email").value
-      };
-      document.getElementById("userInfo").style.display = "none";
-      document.getElementById("gameContainer").style.display = "block";
+      userInfo={ firstName:document.getElementById("firstName").value,
+                 lastName: document.getElementById("lastName").value,
+                 email:    document.getElementById("email").value };
+      document.getElementById("userInfo").style.display="none";
+      document.getElementById("gameContainer").style.display="block";
       loadQuestion();
     };
-    document.getElementById("langEnglish").onclick = () => {
-      currentLang = "en"; currentText = languageData.en; startGame();
-    };
-    document.getElementById("langFrench").onclick = () => {
-      currentLang = "fr"; currentText = languageData.fr; startGame();
-    };
+    document.getElementById("langEnglish").onclick = ()=>{ currentLang="en";currentText=languageData.en;startGame() };
+    document.getElementById("langFrench").onclick  = ()=>{ currentLang="fr";currentText=languageData.fr;startGame() };
 
-    function startGame() {
-      document.getElementById("languageSelection").style.display = "none";
-      document.getElementById("content").style.display = "block";
-      currentQuestionIndex = 0;
-      score = 0;
-      shuffledQuestions = shuffle([...currentText.questions]);
-      applyLanguage();
-      loadQuestion();
+    function startGame(){
+      document.getElementById("languageSelection").style.display="none";
+      document.getElementById("content").style.display="block";
+      currentQuestionIndex=0;score=0;
+      shuffledQuestions=shuffle([...currentText.questions]);
+      applyLanguage();loadQuestion();
     }
   </script>
-  </center>
 </body>
 </html>
