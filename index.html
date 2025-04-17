@@ -10,14 +10,14 @@
     #diversionGrid, #answers { display: grid; gap: 20px; max-width: 800px; margin: 20px auto; }
     #diversionGrid { grid-template-columns: repeat(4,1fr); }
     #answers { grid-template-columns: repeat(4,1fr); justify-items: center; }
-    .diversionCard, .answerButton { background:none; border:none; cursor:pointer; text-align:center; }
-    .diversionCard img, .answerButton img { width:100px; height:100px; object-fit:cover; display:block; margin:0 auto; }
-    .label { margin-top:5px; font-size:0.9em; font-weight:bold; }
-    #questionImage { width:400px; height:300px; object-fit:cover; margin-bottom:10px; }
-    #feedback { margin-top:10px; font-weight:bold; }
-    #score { margin-top:20px; font-size:1.2em; }
-    table { width:80%; border-collapse:collapse; margin:20px auto; }
-    th, td { border:1px solid #333; padding:8px; text-align:center; }
+    .diversionCard, .answerButton { background: none; border: none; cursor: pointer; text-align: center; }
+    .diversionCard img, .answerButton img { width: 100px; height: 100px; object-fit: cover; display: block; margin: 0 auto; }
+    .label { margin-top: 5px; font-size: 0.9em; font-weight: bold; }
+    #questionImage { width: 400px; height: 300px; object-fit: cover; margin-bottom: 10px; }
+    #feedback { margin-top: 10px; font-weight: bold; }
+    #score { margin-top: 20px; font-size: 1.2em; }
+    table { width: 80%; border-collapse: collapse; margin: 20px auto; }
+    th, td { border: 1px solid #333; padding: 8px; text-align: center; }
   </style>
 </head>
 <body>
@@ -94,6 +94,8 @@
         finalScore: 'Your final score is: ',
         thankYouMsg: 'Thank you for playing!',
         leaderboardHeading: 'Leaderboard',
+        noEntriesText: 'No entries yet.',
+        loadErrorText: 'Could not load leaderboard.',
         submissionStatusSuccess: 'Your information was submitted successfully.',
         submissionStatusError: 'Error submitting information.',
         correctText: 'Correct!',
@@ -117,6 +119,8 @@
         finalScore: 'Votre score final est : ',
         thankYouMsg: 'Merci d’avoir joué !',
         leaderboardHeading: 'Classement',
+        noEntriesText: 'Aucune inscription pour le moment.',
+        loadErrorText: 'Impossible de charger le classement.',
         submissionStatusSuccess: 'Vos informations ont été soumises avec succès.',
         submissionStatusError: 'Erreur lors de la soumission.',
         correctText: 'Correct !',
@@ -152,7 +156,6 @@
       { item:{en:'Parchment Paper',fr:'Papier parchemin'}, image:'images/parchment.jpg', correctAnswers:{en:['Compost'],fr:['Compost']} },
       { item:{en:'Disposable water bottle',fr:'Bouteille d\'eau jetable'}, image:'images/water.png', correctAnswers:{en:['Consignaction Box','Recycle'],fr:['Boîte de consignation','Recycler']} }
     ];
-
     const options = [
       { key:{en:'Recycle',fr:'Recycler'}, img:'images/recycle.png' },
       { key:{en:'Compost',fr:'Compost'}, img:'images/compost.png' },
@@ -163,118 +166,21 @@
       { key:{en:'Battery Box',fr:'Poubelle pour piles'}, img:'images/battery-box.png' },
       { key:{en:'Regular Garbage',fr:'Ordures'}, img:'images/garbage.png' }
     ];
-
     let lang='en', idx=0, score=0, shuffled=[];
-
-    function shuffle(arr) { for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
-
-    function applyLanguage() {
-      const d=languageData[lang];
-      document.getElementById('formHeading').innerText=d.formHeading;
-      document.getElementById('labelFirstName').innerText=d.labelFirstName;
-      document.getElementById('labelLastName').innerText=d.labelLastName;
-      document.getElementById('labelEmail').innerText=d.labelEmail;
-      document.getElementById('submitInfo').innerText=d.submitInfo;
-      document.getElementById('introHeading').innerText=d.introHeading;
-      document.getElementById('introPreamble').innerHTML=d.introPreamble;
-      document.getElementById('introContinue').innerText=d.introContinue;
-      document.getElementById('nextButton').innerText=d.nextButton;
-      document.getElementById('gameOverHeading').innerText=d.gameOverHeading;
-      document.getElementById('thankYouMsg').innerText=d.thankYouMsg;
-      document.getElementById('leaderboardHeading').innerText=d.leaderboardHeading;
-    }
-
+    function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+    function applyLanguage(){ const d=languageData[lang]; document.getElementById('formHeading').innerText=d.formHeading; document.getElementById('labelFirstName').innerText=d.labelFirstName; document.getElementById('labelLastName').innerText=d.labelLastName; document.getElementById('labelEmail').innerText=d.labelEmail; document.getElementById('submitInfo').innerText=d.submitInfo; document.getElementById('introHeading').innerText=d.introHeading; document.getElementById('introPreamble').innerHTML=d.introPreamble; document.getElementById('introContinue').innerText=d.introContinue; document.getElementById('nextButton').innerText=d.nextButton; document.getElementById('gameOverHeading').innerText=d.gameOverHeading; document.getElementById('thankYouMsg').innerText=d.thankYouMsg; document.getElementById('leaderboardHeading').innerText=d.leaderboardHeading; }
     document.getElementById('langEnglish').onclick=()=>{lang='en'; applyLanguage(); showUserInfo();};
     document.getElementById('langFrench').onclick=()=>{lang='fr'; applyLanguage(); showUserInfo();};
-
-    function showUserInfo() {
-      document.getElementById('languageSelection').style.display='none';
-      document.getElementById('content').style.display='block';
-      document.getElementById('userInfo').style.display='block';
-    }
-
-    document.getElementById('userInfoForm').onsubmit=e=>{
-      e.preventDefault(); renderDiversionGrid();
-      document.getElementById('userInfo').style.display='none';
-      document.getElementById('introSection').style.display='block';
-    };
-
-    function renderDiversionGrid() {
-      const grid=document.getElementById('diversionGrid'); grid.innerHTML='';
-      options.forEach(o=>{ const label=o.key[lang]; const card=document.createElement('div'); card.className='diversionCard'; card.innerHTML=`<img src="${o.img}" alt="${label}"><div class="label">${label}</div>`; grid.appendChild(card); });
-    }
-
-    document.getElementById('introContinue').onclick=()=>{
-      document.getElementById('introSection').style.display='none';
-      document.getElementById('gameContainer').style.display='block';
-      startQuiz();
-    };
-
-    function startQuiz() {
-      shuffled=shuffle([...questions]); idx=0; score=0;
-      showQuestion(); updateScore();
-    }
-
-    function showQuestion() {
-      const q=shuffled[idx], d=languageData[lang];
-      document.getElementById('questionCounter').innerText=`Question ${idx+1} of ${shuffled.length}`;
-      document.getElementById('questionText').innerText=d.questionPrefix + q.item[lang];
-      document.getElementById('questionImage').src=q.image;
-      const ans=document.getElementById('answers'); ans.innerHTML='';
-      options.forEach(o=>{ const lbl=o.key[lang]; const btn=document.createElement('button'); btn.className='answerButton'; btn.innerHTML=`<img src="${o.img}" alt="${lbl}"><div class="label">${lbl}</div>`; btn.onclick=()=>checkAnswer(lbl,q.correctAnswers[lang]); ans.appendChild(btn); });
-      document.getElementById('feedback').innerText=''; document.getElementById('nextButton').classList.add('hidden');
-    }
-
-    function checkAnswer(sel, correctList) {
-      const d=languageData[lang];
-      document.querySelectorAll('#answers button').forEach(b=>b.disabled=true);
-      const fb=document.getElementById('feedback');
-      if(correctList.includes(sel)) { score++; fb.innerText=d.correctText; }
-      else { fb.innerText=d.incorrectText + correctList.join(lang==='en'?' or ':' ou '); }
-      updateScore();
-      const next=document.getElementById('nextButton'); next.classList.remove('hidden');
-      next.onclick=()=>{ idx++; if(idx>=shuffled.length) endGame(); else showQuestion(); };
-    }
-
-    function updateScore() {
-      document.getElementById('score').innerText = languageData[lang].scoreLabel + score;
-    }
-
-    async function endGame() {
-      const d=languageData[lang];
-      document.getElementById('gameContainer').style.display='none';
-      document.getElementById('finalSection').style.display='block';
-      document.getElementById('finalScore').innerText = d.finalScore + score + ' / ' + shuffled.length;
-      try {
-        const resp = await fetch(submitUrl, {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({
-            firstName:document.getElementById('firstName').value,
-            lastName:document.getElementById('lastName').value,
-            email:document.getElementById('email').value,
-            score
-          })
-        });
-        document.getElementById('submissionStatus').innerText = resp.ok ? d.submissionStatusSuccess : d.submissionStatusError;
-      } catch(e) {
-        document.getElementById('submissionStatus').innerText = d.submissionStatusError;
-      }
-      loadLeaderboard();
-    }
-
-    async function loadLeaderboard() {
-      try {
-        const resp = await fetch(leaderboardUrl);
-        const data = await resp.json();
-        const tbody = document.querySelector('#leaderboardTable tbody'); tbody.innerHTML='';
-        data.forEach(r=>{
-          const tr=document.createElement('tr');
-          tr.innerHTML = `<td>${r.firstName} ${r.lastName}</td><td>${r.email}</td><td>${r.score}</td>`;
-          tbody.appendChild(tr);
-        });
-      } catch(e) {}
-    }
+    function showUserInfo(){ document.getElementById('languageSelection').style.display='none'; document.getElementById('content').style.display='block'; document.getElementById('userInfo').style.display='block'; }
+    document.getElementById('userInfoForm').onsubmit=e=>{ e.preventDefault(); renderDiversionGrid(); document.getElementById('userInfo').style.display='none'; document.getElementById('introSection').style.display='block'; };
+    function renderDiversionGrid(){ const grid=document.getElementById('diversionGrid'); grid.innerHTML=''; options.forEach(o=>{ const lbl=o.key[lang]; const card=document.createElement('div'); card.className='diversionCard'; card.innerHTML=`<img src="${o.img}" alt="${lbl}"><div class="label">${lbl}</div>`; grid.appendChild(card); }); }
+    document.getElementById('introContinue').onclick=()=>{ document.getElementById('introSection').style.display='none'; document.getElementById('gameContainer').style.display='block'; startQuiz(); };
+    function startQuiz(){ shuffled=shuffle([...questions]); idx=0; score=0; showQuestion(); updateScore(); }
+    function showQuestion(){ const q=shuffled[idx], d=languageData[lang]; document.getElementById('questionCounter').innerText=`Question ${idx+1} of ${shuffled.length}`; document.getElementById('questionText').innerText=d.questionPrefix+q.item[lang]; document.getElementById('questionImage').src=q.image; const ans=document.getElementById('answers'); ans.innerHTML=''; options.forEach(o=>{ const lbl=o.key[lang]; const btn=document.createElement('button'); btn.className='answerButton'; btn.innerHTML=`<img src="${o.img}" alt="${lbl}"><div class="label">${lbl}</div>`; btn.onclick=()=>checkAnswer(lbl,q.correctAnswers[lang]); ans.appendChild(btn); }); document.getElementById('feedback').innerText=''; document.getElementById('nextButton').classList.add('hidden'); }
+    function checkAnswer(sel,cl){ const d=languageData[lang]; document.querySelectorAll('#answers button').forEach(b=>b.disabled=true); const fb=document.getElementById('feedback'); if(cl.includes(sel)){ score++; fb.innerText=d.correctText; }else{ fb.innerText=d.incorrectText+cl.join(lang==='en'?' or ':' ou '); } updateScore(); const next=document.getElementById('nextButton'); next.classList.remove('hidden'); next.onclick=()=>{ idx++; if(idx>=shuffled.length) endGame(); else showQuestion(); }; }
+    function updateScore(){ document.getElementById('score').innerText = languageData[lang].scoreLabel+score; }
+    async function endGame(){ const d=languageData[lang]; document.getElementById('gameContainer').style.display='none'; document.getElementById('finalSection').style.display='block'; document.getElementById('finalScore').innerText = d.finalScore+score+' / '+shuffled.length; try{ const resp=await fetch(submitUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({firstName:document.getElementById('firstName').value,lastName:document.getElementById('lastName').value,email:document.getElementById('email').value,score})}); document.getElementById('submissionStatus').innerText=resp.ok?d.submissionStatusSuccess:d.submissionStatusError; }catch(e){ document.getElementById('submissionStatus').innerText = languageData[lang].submissionStatusError; } loadLeaderboard(); }
+    async function loadLeaderboard(){ try{ const resp=await fetch(leaderboardUrl); const text=await resp.text(); console.log('Leaderboard raw:',text); const data=JSON.parse(text); const tbody=document.querySelector('#leaderboardTable tbody'); tbody.innerHTML=''; if(!Array.isArray(data)||data.length===0){ const tr=document.createElement('tr'); tr.innerHTML=`<td colspan="3">${languageData[lang].noEntriesText}</td>`; tbody.appendChild(tr); return;} data.forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${r.firstName} ${r.lastName}</td><td>${r.email}</td><td>${r.score}</td>`; tbody.appendChild(tr); }); }catch(e){ console.error('Error loading leaderboard',e); const tbody=document.querySelector('#leaderboardTable tbody'); tbody.innerHTML=`<tr><td colspan="3">${languageData[lang].loadErrorText}</td></tr>`; }}
   </script>
 </body>
 </html>
