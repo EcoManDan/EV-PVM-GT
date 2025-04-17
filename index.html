@@ -16,8 +16,8 @@
     #questionImage { width:400px; height:300px; object-fit:cover; margin-bottom:10px; }
     #feedback { margin-top:10px; font-weight:bold; }
     #score { margin-top:20px; font-size:1.2em; }
-    #introPreamble { max-width:800px; margin:0 auto 20px; text-align:left; }
-    #introPreamble ul { margin-left:20px; }
+    table { width:80%; border-collapse:collapse; margin:20px auto; }
+    th, td { border:1px solid #333; padding:8px; text-align:center; }
   </style>
 </head>
 <body>
@@ -63,12 +63,18 @@
       <div id="finalScore"></div>
       <div id="thankYouMsg"></div>
       <h3 id="leaderboardHeading"></h3>
-      <div id="leaderboard"></div>
+      <table id="leaderboardTable">
+        <thead><tr><th>Name</th><th>Email</th><th>Score</th></tr></thead>
+        <tbody></tbody>
+      </table>
       <div id="submissionStatus"></div>
     </div>
   </div>
 
   <script>
+    const submitUrl = 'https://ev-pvm-gt.infinityfreeapp.com/submit.php';
+    const leaderboardUrl = 'https://ev-pvm-gt.infinityfreeapp.com/leaderboard.php';
+
     const languageData = {
       en: {
         formHeading: 'Please enter your information:',
@@ -89,6 +95,7 @@
         thankYouMsg: 'Thank you for playing!',
         leaderboardHeading: 'Leaderboard',
         submissionStatusSuccess: 'Your information was submitted successfully.',
+        submissionStatusError: 'Error submitting information.',
         correctText: 'Correct!',
         incorrectText: 'Incorrect! The correct answer is: '
       },
@@ -111,37 +118,38 @@
         thankYouMsg: 'Merci d’avoir joué !',
         leaderboardHeading: 'Classement',
         submissionStatusSuccess: 'Vos informations ont été soumises avec succès.',
+        submissionStatusError: 'Erreur lors de la soumission.',
         correctText: 'Correct !',
         incorrectText: 'Incorrect ! La bonne réponse est : '
       }
     };
 
     const questions = [
-      { item:{en:'Yogurt Cup',fr:'Coupe de yaourt'},    image:'images/yogurt.jpg',             correctAnswers:{en:['Recycle'],fr:['Recycler']} },
-      { item:{en:'Pizza Box',fr:'Boîte à pizza'},        image:'images/pizza-box.png',        correctAnswers:{en:['Compost'],fr:['Compost']} },
-      { item:{en:'Milk Carton',fr:'Carton de lait'},    image:'images/milk-carton.png',      correctAnswers:{en:['Recycle'],fr:['Recycler']} },
-      { item:{en:'Pop Can',fr:'Canette'},               image:'images/pop-can.png',          correctAnswers:{en:['Consignaction Box','Recycle'],fr:['Boîte de consignation','Recycler']} },
+      { item:{en:'Yogurt Cup',fr:'Coupe de yaourt'}, image:'images/yogurt.jpg', correctAnswers:{en:['Recycle'],fr:['Recycler']} },
+      { item:{en:'Pizza Box',fr:'Boîte à pizza'}, image:'images/pizza-box.png', correctAnswers:{en:['Compost'],fr:['Compost']} },
+      { item:{en:'Milk Carton',fr:'Carton de lait'}, image:'images/milk-carton.png', correctAnswers:{en:['Recycle'],fr:['Recycler']} },
+      { item:{en:'Pop Can',fr:'Canette'}, image:'images/pop-can.png', correctAnswers:{en:['Consignaction Box','Recycle'],fr:['Boîte de consignation','Recycler']} },
       { item:{en:'Aluminum Foil',fr:'Papier d’aluminium'}, image:'images/aluminum-foil.png', correctAnswers:{en:['Recycle'],fr:['Recycler']} },
-      { item:{en:'Wine Bottle',fr:'Bouteille de vin'},  image:'images/wine-bottle.png',      correctAnswers:{en:['Recycle'],fr:['Recycler']} },
+      { item:{en:'Wine Bottle',fr:'Bouteille de vin'}, image:'images/wine-bottle.png', correctAnswers:{en:['Recycle'],fr:['Recycler']} },
       { item:{en:'Newspapers and Flyers',fr:'Journaux et dépliants'}, image:'images/newspapers.png', correctAnswers:{en:['Recycle'],fr:['Recycler']} },
       { item:{en:'Plastic beverage bottles',fr:'Bouteilles en plastique'}, image:'images/pop-bottles.jpg', correctAnswers:{en:['Consignaction Box','Recycle'],fr:['Boîte de consignation','Recycler']} },
-      { item:{en:'Soup can',fr:'Boîte de soupe'},         image:'images/soup.png',            correctAnswers:{en:['Recycle'],fr:['Recycler']} },
+      { item:{en:'Soup can',fr:'Boîte de soupe'}, image:'images/soup.png', correctAnswers:{en:['Recycle'],fr:['Recycler']} },
       { item:{en:'Plastic Wrap, bread bags, ziplocs',fr:'Film plastique, sacs à pain, sacs Ziploc'}, image:'images/bags.png', correctAnswers:{en:['Recycle'],fr:['Recycler']} },
       { item:{en:'Pens, Highlighters, Sharpies',fr:'Stylos, surligneurs, feutres'}, image:'images/writing-utensils.png', correctAnswers:{en:['Office Supplies Box'],fr:['Boîte de fournitures de bureau']} },
       { item:{en:'Juice and Beverage Boxes',fr:'Boîtes de jus et boissons'}, image:'images/juice-box.png', correctAnswers:{en:['Recycle'],fr:['Recycler']} },
       { item:{en:'Chip bags, granola/candy bar wrappers, gum blister pack',fr:'Sachets de chips, emballages de barres, plaquette de gomme'}, image:'images/snack-wrapper.png', correctAnswers:{en:['Snack Wrapper Box'],fr:['Boîte d\'emballages de collation']} },
-      { item:{en:'Batteries',fr:'Piles'},                image:'images/batteries.png',        correctAnswers:{en:['Battery Box'],fr:['Poubelle pour piles']} },
+      { item:{en:'Batteries',fr:'Piles'}, image:'images/batteries.png', correctAnswers:{en:['Battery Box'],fr:['Poubelle pour piles']} },
       { item:{en:'Popsicle Sticks',fr:'Bâtonnets de crème glacée'}, image:'images/popsicle-sticks.png', correctAnswers:{en:['Compost'],fr:['Compost']} },
       { item:{en:'Plastic Coffee Pod',fr:'Capsule de café en plastique'}, image:'images/plastic-coffee-pod.png', correctAnswers:{en:['Coffee Pod Box'],fr:['Boîte à capsules de café']} },
-      { item:{en:'Paper Coffee Cup and Lid',fr:'Tasse de café en papier et couvercle'}, image:'images/coffee.jpg', correctAnswers:{en:['Recycle'],fr:['Recycler']} },
+      { item:{en:'Paper Coffee Cup and Lid',fr:'Tasse de café en papier et couvercle'}, image:'images/coffee-cup.png', correctAnswers:{en:['Recycle'],fr:['Recycler']} },
       { item:{en:'Plastic utensils',fr:'Ustensiles en plastique'}, image:'images/plastic-utensils.png', correctAnswers:{en:['Regular Garbage'],fr:['Ordures']} },
-      { item:{en:'Styrofoam',fr:'Styromousse'},           image:'images/styrofoam.png',        correctAnswers:{en:['Regular Garbage'],fr:['Ordures']} },
+      { item:{en:'Styrofoam',fr:'Styromousse'}, image:'images/styrofoam.png', correctAnswers:{en:['Regular Garbage'],fr:['Ordures']} },
       { item:{en:'Coffee grounds and filters',fr:'Marc de café et filtres'}, image:'images/coffee-grounds.png', correctAnswers:{en:['Compost'],fr:['Compost']} },
-      { item:{en:'Food leftovers',fr:'Restes alimentaires'}, image:'images/leftovers.png',       correctAnswers:{en:['Compost'],fr:['Compost']} },
+      { item:{en:'Food leftovers',fr:'Restes alimentaires'}, image:'images/leftovers.png', correctAnswers:{en:['Compost'],fr:['Compost']} },
       { item:{en:'Tea and tea bags',fr:'Thé et sachets de thé'}, image:'images/teabags.png', correctAnswers:{en:['Compost'],fr:['Compost']} },
       { item:{en:'Paper plates (unwaxed)',fr:'Assiettes en papier non cirées'}, image:'images/paper-plates.png', correctAnswers:{en:['Compost'],fr:['Compost']} },
-      { item:{en:'Tissue',fr:'Mouchoir'},                 image:'images/tissue.png',           correctAnswers:{en:['Compost'],fr:['Compost']} },
-      { item:{en:'Parchment Paper',fr:'Papier parchemin'}, image:'images/parchment.jpg',        correctAnswers:{en:['Compost'],fr:['Compost']} },
+      { item:{en:'Tissue',fr:'Mouchoir'}, image:'images/tissue.png', correctAnswers:{en:['Compost'],fr:['Compost']} },
+      { item:{en:'Parchment Paper',fr:'Papier parchemin'}, image:'images/parchment.jpg', correctAnswers:{en:['Compost'],fr:['Compost']} },
       { item:{en:'Disposable water bottle',fr:'Bouteille d\'eau jetable'}, image:'images/water.png', correctAnswers:{en:['Consignaction Box','Recycle'],fr:['Boîte de consignation','Recycler']} }
     ];
 
@@ -158,7 +166,7 @@
 
     let lang='en', idx=0, score=0, shuffled=[];
 
-    function shuffle(arr) { for (let i=arr.length-1; i>0; i--) { const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+    function shuffle(arr) { for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
 
     function applyLanguage() {
       const d=languageData[lang];
@@ -176,8 +184,8 @@
       document.getElementById('leaderboardHeading').innerText=d.leaderboardHeading;
     }
 
-    document.getElementById('langEnglish').addEventListener('click',()=>{lang='en'; applyLanguage(); showUserInfo();});
-    document.getElementById('langFrench').addEventListener('click',()=>{lang='fr'; applyLanguage(); showUserInfo();});
+    document.getElementById('langEnglish').onclick=()=>{lang='en'; applyLanguage(); showUserInfo();};
+    document.getElementById('langFrench').onclick=()=>{lang='fr'; applyLanguage(); showUserInfo();};
 
     function showUserInfo() {
       document.getElementById('languageSelection').style.display='none';
@@ -185,32 +193,88 @@
       document.getElementById('userInfo').style.display='block';
     }
 
-    document.getElementById('userInfoForm').addEventListener('submit',e=>{
+    document.getElementById('userInfoForm').onsubmit=e=>{
       e.preventDefault(); renderDiversionGrid();
       document.getElementById('userInfo').style.display='none';
       document.getElementById('introSection').style.display='block';
-    });
+    };
 
     function renderDiversionGrid() {
       const grid=document.getElementById('diversionGrid'); grid.innerHTML='';
       options.forEach(o=>{ const label=o.key[lang]; const card=document.createElement('div'); card.className='diversionCard'; card.innerHTML=`<img src="${o.img}" alt="${label}"><div class="label">${label}</div>`; grid.appendChild(card); });
     }
 
-    document.getElementById('introContinue').addEventListener('click',()=>{document.getElementById('introSection').style.display='none'; document.getElementById('gameContainer').style.display='block'; startQuiz();});
+    document.getElementById('introContinue').onclick=()=>{
+      document.getElementById('introSection').style.display='none';
+      document.getElementById('gameContainer').style.display='block';
+      startQuiz();
+    };
 
-    function startQuiz() { shuffled=shuffle([...questions]); idx=0; score=0; showQuestion(); updateScore(); }
+    function startQuiz() {
+      shuffled=shuffle([...questions]); idx=0; score=0;
+      showQuestion(); updateScore();
+    }
+
     function showQuestion() {
       const q=shuffled[idx], d=languageData[lang];
       document.getElementById('questionCounter').innerText=`Question ${idx+1} of ${shuffled.length}`;
-      document.getElementById('questionText').innerText=d.questionPrefix+q.item[lang];
+      document.getElementById('questionText').innerText=d.questionPrefix + q.item[lang];
       document.getElementById('questionImage').src=q.image;
       const ans=document.getElementById('answers'); ans.innerHTML='';
       options.forEach(o=>{ const lbl=o.key[lang]; const btn=document.createElement('button'); btn.className='answerButton'; btn.innerHTML=`<img src="${o.img}" alt="${lbl}"><div class="label">${lbl}</div>`; btn.onclick=()=>checkAnswer(lbl,q.correctAnswers[lang]); ans.appendChild(btn); });
       document.getElementById('feedback').innerText=''; document.getElementById('nextButton').classList.add('hidden');
     }
-    function checkAnswer(sel,correctList) { const d=languageData[lang]; document.querySelectorAll('#answers button').forEach(b=>b.disabled=true); const fb=document.getElementById('feedback'); if(correctList.includes(sel)){score++; fb.innerText=d.correctText;} else {fb.innerText=d.incorrectText+correctList.join(lang==='en'?' or ':' ou ');} updateScore(); const next=document.getElementById('nextButton'); next.classList.remove('hidden'); next.onclick=()=>{idx++; if(idx>=shuffled.length) endGame(); else showQuestion();}; }
-    function updateScore(){ document.getElementById('score').innerText=languageData[lang].scoreLabel+score; }
-    function endGame(){ const d=languageData[lang]; document.getElementById('gameContainer').style.display='none'; document.getElementById('finalSection').style.display='block'; document.getElementById('finalScore').innerText=d.finalScore+score+' / '+shuffled.length; document.getElementById('submissionStatus').innerText=d.submissionStatusSuccess; }
+
+    function checkAnswer(sel, correctList) {
+      const d=languageData[lang];
+      document.querySelectorAll('#answers button').forEach(b=>b.disabled=true);
+      const fb=document.getElementById('feedback');
+      if(correctList.includes(sel)) { score++; fb.innerText=d.correctText; }
+      else { fb.innerText=d.incorrectText + correctList.join(lang==='en'?' or ':' ou '); }
+      updateScore();
+      const next=document.getElementById('nextButton'); next.classList.remove('hidden');
+      next.onclick=()=>{ idx++; if(idx>=shuffled.length) endGame(); else showQuestion(); };
+    }
+
+    function updateScore() {
+      document.getElementById('score').innerText = languageData[lang].scoreLabel + score;
+    }
+
+    async function endGame() {
+      const d=languageData[lang];
+      document.getElementById('gameContainer').style.display='none';
+      document.getElementById('finalSection').style.display='block';
+      document.getElementById('finalScore').innerText = d.finalScore + score + ' / ' + shuffled.length;
+      try {
+        const resp = await fetch(submitUrl, {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({
+            firstName:document.getElementById('firstName').value,
+            lastName:document.getElementById('lastName').value,
+            email:document.getElementById('email').value,
+            score
+          })
+        });
+        document.getElementById('submissionStatus').innerText = resp.ok ? d.submissionStatusSuccess : d.submissionStatusError;
+      } catch(e) {
+        document.getElementById('submissionStatus').innerText = d.submissionStatusError;
+      }
+      loadLeaderboard();
+    }
+
+    async function loadLeaderboard() {
+      try {
+        const resp = await fetch(leaderboardUrl);
+        const data = await resp.json();
+        const tbody = document.querySelector('#leaderboardTable tbody'); tbody.innerHTML='';
+        data.forEach(r=>{
+          const tr=document.createElement('tr');
+          tr.innerHTML = `<td>${r.firstName} ${r.lastName}</td><td>${r.email}</td><td>${r.score}</td>`;
+          tbody.appendChild(tr);
+        });
+      } catch(e) {}
+    }
   </script>
 </body>
 </html>
