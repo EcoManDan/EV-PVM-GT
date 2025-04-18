@@ -245,38 +245,72 @@ const leaderboardUrl = 'https://ev-pvm-gt.infinityfreeapp.com/leaderboard.php';
       current++;
     }
 
-    async function endGame() {
-      showSection('finalSection');
-      document.getElementById('endMessage').innerText = lang==='fr'
-        ? 'Merci d’avoir joué à notre jeu ! Vous êtes inscrit au tirage pour gagner un éco-prix.'
-        : 'Thank you for playing our game! You have been entered into a draw to win an Eco-Prize.';
-      document.getElementById('finalScore').innerText = languageData[lang].finalScore + score + ' / ' + shuffled.length;
-      try {
-        await fetch(submitUrl, {
-          method: 'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({
-            firstName: document.getElementById('firstName').value,
-            lastName: document.getElementById('lastName').value,
-            score
-          })
-        });
-      } catch(e) { console.error('Submit error', e); }
-      try {
-        const res = await fetch(leaderboardUrl);
-        const data = await res.json();
-        document.getElementById('leaderboardHeading').innerText = lang==='fr'? 'Classement' : 'Leaderboard';
-        document.getElementById('leaderNameHeader').innerText = lang==='fr'? 'Nom' : 'Name';
-        document.getElementById('leaderScoreHeader').innerText = lang==='fr'? 'Score' : 'Score';
-        const body = document.getElementById('leaderboardBody'); body.innerHTML = '';
-        data.forEach(entry => {
-          const tr = document.createElement('tr');
-          const tdName = document.createElement('td'); tdName.innerText = entry.name;
-          const tdScore = document.createElement('td'); tdScore.innerText = entry.score;
-          tr.appendChild(tdName); tr.appendChild(tdScore);
-          body.appendChild(tr);
-        });
-      } catch(e) { console.error('Leaderboard error', e); }
+async function endGame() {
+  // 1) Reveal final screen
+  showSection('finalSection');
+
+  // 2) Thank‑you message + score
+  document.getElementById('endMessage').innerText = lang === 'fr'
+    ? 'Merci d’avoir joué à notre jeu ! Vous êtes inscrit au tirage pour gagner un éco-prix.'
+    : 'Thank you for playing our game! You have been entered into a draw to win an Eco‑Prize.';
+  document.getElementById('finalScore').innerText =
+    languageData[lang].finalScore + score + ' / ' + shuffled.length;
+
+  // 3) Submit the result
+  try {
+    await fetch(submitUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstName: document.getElementById('firstName').value,
+        lastName:  document.getElementById('lastName').value,
+        score
+      })
+    });
+  } catch (e) {
+    console.error('Submit error', e);
+  }
+
+  // 4) Fetch & render leaderboard
+  try {
+    const res  = await fetch(leaderboardUrl);
+    const data = await res.json();
+
+    // 4a) Update heading
+    document.getElementById('leaderboardHeading').innerText = lang === 'fr'
+      ? 'Classement des joueurs'
+      : 'Leaderboard of Players';
+    document.getElementById('leaderNameHeader').innerText = lang === 'fr' ? 'Nom' : 'Name';
+    document.getElementById('leaderScoreHeader').innerText = lang === 'fr' ? 'Score' : 'Score';
+
+    const body = document.getElementById('leaderboardBody');
+
+    // 4b) Empty‑state
+    if (data.length === 0) {
+      body.innerHTML = `
+        <tr>
+          <td colspan="2" style="text-align:center;font-style:italic;">
+            ${lang === 'fr' ? 'Aucun score pour le moment' : 'No entries yet'}
+          </td>
+        </tr>`;
+    } else {
+      // 4c) Populate rows
+      body.innerHTML = '';
+      data.forEach(entry => {
+        const tr      = document.createElement('tr');
+        const tdName  = document.createElement('td');
+        const tdScore = document.createElement('td');
+        tdName.innerText  = entry.firstName + ' ' + entry.lastName;
+        tdScore.innerText = entry.score;
+        tr.appendChild(tdName);
+        tr.appendChild(tdScore);
+        body.appendChild(tr);
+      });
     }
+  } catch (e) {
+    console.error('Leaderboard error', e);
+  }
+}
   </script>
 </body>
 </html>
