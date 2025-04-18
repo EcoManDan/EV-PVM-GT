@@ -79,10 +79,10 @@
   </div>
 
   <script>
-	const submitUrl      = 'https://ev-pvm-gt.infinityfreeapp.com/submit.php';
-const leaderboardUrl = 'https://ev-pvm-gt.infinityfreeapp.com/leaderboard.php';
+  const submitUrl      = 'https://ev-pvm-gt.infinityfreeapp.com/submit.php';
+  const leaderboardUrl = 'https://ev-pvm-gt.infinityfreeapp.com/leaderboard.php';
     let lang, shuffled, current, score;
-
+  const baseImageUrl   = './images/';
     const languageData = {
       en: {
         factoidHeading: 'Did you know?',
@@ -145,35 +145,165 @@ const leaderboardUrl = 'https://ev-pvm-gt.infinityfreeapp.com/leaderboard.php';
         finalScore: 'Votre score final est : '
       }
     };
-    const questions = [
-      {image:'images/yogurt.jpg',en:'Yogurt Cup',fr:'Coupe de yaourt',correctAnswers:{en:['Recycle'],fr:['Recycle']}},
-      {image:'images/pizza-box.png',en:'Pizza Box',fr:'Boîte à pizza',correctAnswers:{en:['Compost'],fr:['Compost']}},
-      {image:'images/milk-carton.png',en:'Milk Carton',fr:'Carton de lait',correctAnswers:{en:['Recycle'],fr:['Recycle']}},
-      {image:'images/pop-can.png',en:'Pop Can',fr:'Canette',correctAnswers:{en:['Consignaction Box','Recycle'],fr:['Consignaction Box','Recycle']}},
-      {image:'images/aluminum-foil.png',en:'Aluminum Foil',fr:'Papier d’aluminium',correctAnswers:{en:['Recycle'],fr:['Recycle']}},
-      {image:'images/wine-bottle.png',en:'Wine Bottle',fr:'Bouteille de vin',correctAnswers:{en:['Recycle'],fr:['Recycle']}},
-      {image:'images/newspapers.png',en:'Newspapers and Flyers',fr:'Journaux et dépliants',correctAnswers:{en:['Recycle'],fr:['Recycle']}},
-      {image:'images/pop-bottles.jpg',en:'Plastic beverage bottles',fr:'Bouteilles en plastique',correctAnswers:{en:['Consignaction Box','Recycle'],fr:['Consignaction Box','Recycle']}},
-      {image:'images/soup.png',en:'Soup can',fr:'Boîte de soupe',correctAnswers:{en:['Recycle'],fr:['Recycle']}},
-      {image:'images/bags.png',en:'Plastic Wrap, bread bags, ziplocs',fr:'Film plastique, sacs à pain, sacs Ziploc',correctAnswers:{en:['Recycle'],fr:['Recycle']}},
-      {image:'images/writing-utensils.png',en:'Pens, Highlighters, Sharpies',fr:'Stylos, surligneurs, feutres',correctAnswers:{en:['Office Supplies Box'],fr:['Office Supplies Box']}},
-      {image:'images/juice-box.png',en:'Juice and Beverage Boxes',fr:'Boîtes de jus et boissons',correctAnswers:{en:['Recycle'],fr:['Recycle']}},
-      {image:'images/snack-wrapper.png',en:'Snack Wrapper Box',fr:'Boîte d’emballages de collation',correctAnswers:{en:['Snack Wrapper Box'],fr:['Snack Wrapper Box']}},
-      {image:'images/batteries.png',en:'Batteries',fr:'Piles',correctAnswers:{en:['Battery Box'],fr:['Battery Box']}},
-      {image:'images/popsicle-sticks.png',en:'Popsicle Sticks',fr:'Bâtonnets de crème glacée',correctAnswers:{en:['Compost'],fr:['Compost']}},
-      {image:'images/plastic-coffee-pod.png',en:'Plastic Coffee Pod',fr:'Capsule de café en plastique',correctAnswers:{en:['Coffee Pod Box'],fr:['Coffee Pod Box']}},
-      {image:'images/coffee-cup.jpg',en:'Paper Coffee Cup and Lid',fr:'Tasse de café en papier et couvercle',correctAnswers:{en:['Recycle'],fr:['Recycle']}},
-      {image:'images/plastic-utensils.png',en:'Plastic utensils',fr:'Ustensiles en plastique',correctAnswers:{en:['Regular Garbage'],fr:['Regular Garbage']}},
-      {image:'images/styrofoam.png',en:'Styrofoam',fr:'Styromousse',correctAnswers:{en:['Regular Garbage'],fr:['Regular Garbage']}},
-      {image:'images/coffee-grounds.png',en:'Coffee grounds and filters',fr:'Marc de café et filtres',correctAnswers:{en:['Compost'],fr:['Compost']}},
-      {image:'images/food-leftovers.png',en:'Food leftovers',fr:'Restes alimentaires',correctAnswers:{en:['Compost'],fr:['Compost']}},
-      {image:'images/teabags.png',en:'Tea and tea bags',fr:'Thé et sachets de thé',correctAnswers:{en:['Compost'],fr:['Compost']}},
-      {image:'images/paper-plates.png',en:'Paper plates (unwaxed)',fr:'Assiettes en papier non cirées',correctAnswers:{en:['Compost'],fr:['Compost']}},
-      {image:'images/tissue.png',en:'Tissue',fr:'Mouchoir',correctAnswers:{en:['Compost'],fr:['Compost']}},
-      {image:'images/parchment.jpg',en:'Parchment Paper',fr:'Papier parchemin',correctAnswers:{en:['Compost'],fr:['Compost']}},
-      {image:'images/water.png',en:'Disposable water bottle',fr:'Bouteille d’eau jetable',correctAnswers:{en:['Consignaction Box','Recycle'],fr:['Consignaction Box','Recycle']}}
-    ];
-    
+```js
+const questions = [
+  {
+    image: baseImageUrl + 'yogurt.jpg',
+    en:    'Yogurt Cup',
+    fr:    'Coupe de yaourt',
+    correctAnswers: { en: ['Recycle'], fr: ['Recycle'] }
+  },
+  {
+    image: baseImageUrl + 'pizza-box.png',
+    en:    'Pizza Box',
+    fr:    'Boîte à pizza',
+    correctAnswers: { en: ['Compost'], fr: ['Compost'] }
+  },
+  {
+    image: baseImageUrl + 'milk-carton.png',
+    en:    'Milk Carton',
+    fr:    'Carton de lait',
+    correctAnswers: { en: ['Recycle'], fr: ['Recycle'] }
+  },
+  {
+    image: baseImageUrl + 'pop-can.png',
+    en:    'Pop Can',
+    fr:    'Canette',
+    correctAnswers: { en: ['Consignaction Box', 'Recycle'], fr: ['Consignaction Box', 'Recycle'] }
+  },
+  {
+    image: baseImageUrl + 'aluminum-foil.png',
+    en:    'Aluminum Foil',
+    fr:    'Papier d’aluminium',
+    correctAnswers: { en: ['Recycle'], fr: ['Recycle'] }
+  },
+  {
+    image: baseImageUrl + 'wine-bottle.png',
+    en:    'Wine Bottle',
+    fr:    'Bouteille de vin',
+    correctAnswers: { en: ['Recycle'], fr: ['Recycle'] }
+  },
+  {
+    image: baseImageUrl + 'newspapers.png',
+    en:    'Newspapers and Flyers',
+    fr:    'Journaux et dépliants',
+    correctAnswers: { en: ['Recycle'], fr: ['Recycle'] }
+  },
+  {
+    image: baseImageUrl + 'pop-bottles.jpg',
+    en:    'Plastic beverage bottles',
+    fr:    'Bouteilles en plastique',
+    correctAnswers: { en: ['Consignaction Box', 'Recycle'], fr: ['Consignaction Box', 'Recycle'] }
+  },
+  {
+    image: baseImageUrl + 'soup.png',
+    en:    'Soup can',
+    fr:    'Boîte de soupe',
+    correctAnswers: { en: ['Recycle'], fr: ['Recycle'] }
+  },
+  {
+    image: baseImageUrl + 'bags.png',
+    en:    'Plastic Wrap, bread bags, ziplocs',
+    fr:    'Film plastique, sacs à pain, sacs Ziploc',
+    correctAnswers: { en: ['Recycle'], fr: ['Recycle'] }
+  },
+  {
+    image: baseImageUrl + 'writing-utensils.png',
+    en:    'Pens, Highlighters, Sharpies',
+    fr:    'Stylos, surligneurs, feutres',
+    correctAnswers: { en: ['Office Supplies Box'], fr: ['Office Supplies Box'] }
+  },
+  {
+    image: baseImageUrl + 'juice-box.png',
+    en:    'Juice and Beverage Boxes',
+    fr:    'Boîtes de jus et boissons',
+    correctAnswers: { en: ['Recycle'], fr: ['Recycle'] }
+  },
+  {
+    image: baseImageUrl + 'snack-wrapper.png',
+    en:    'Chip bags, granola/candy bar wrappers, gum blister pack',
+    fr:    'Sachets de chips, emballages de barre granola/confiserie, plaquettes de gomme',
+    correctAnswers: { en: ['Snack Wrapper Box'], fr: ['Snack Wrapper Box'] }
+  },
+  {
+    image: baseImageUrl + 'batteries.png',
+    en:    'Batteries',
+    fr:    'Piles',
+    correctAnswers: { en: ['Battery Box'], fr: ['Battery Box'] }
+  },
+  {
+    image: baseImageUrl + 'popsicle-sticks.png',
+    en:    'Popsicle Sticks',
+    fr:    'Bâtonnets de crème glacée',
+    correctAnswers: { en: ['Compost'], fr: ['Compost'] }
+  },
+  {
+    image: baseImageUrl + 'plastic-coffee-pod.png',
+    en:    'Plastic Coffee Pod',
+    fr:    'Capsule de café en plastique',
+    correctAnswers: { en: ['Coffee Pod Box'], fr: ['Coffee Pod Box'] }
+  },
+  {
+    image: baseImageUrl + 'coffee-cup.jpg',
+    en:    'Paper Coffee Cup and Lid',
+    fr:    'Tasse de café en papier et couvercle',
+    correctAnswers: { en: ['Recycle'], fr: ['Recycle'] }
+  },
+  {
+    image: baseImageUrl + 'plastic-utensils.png',
+    en:    'Plastic utensils',
+    fr:    'Ustensiles en plastique',
+    correctAnswers: { en: ['Regular Garbage'], fr: ['Regular Garbage'] }
+  },
+  {
+    image: baseImageUrl + 'styrofoam.png',
+    en:    'Styrofoam',
+    fr:    'Styromousse',
+    correctAnswers: { en: ['Regular Garbage'], fr: ['Regular Garbage'] }
+  },
+  {
+    image: baseImageUrl + 'coffee-grounds.png',
+    en:    'Coffee grounds and filters',
+    fr:    'Marc de café et filtres',
+    correctAnswers: { en: ['Compost'], fr: ['Compost'] }
+  },
+  {
+    image: baseImageUrl + 'food-leftovers.png',
+    en:    'Food leftovers',
+    fr:    'Restes alimentaires',
+    correctAnswers: { en: ['Compost'], fr: ['Compost'] }
+  },
+  {
+    image: baseImageUrl + 'teabags.png',
+    en:    'Tea and tea bags',
+    fr:    'Thé et sachets de thé',
+    correctAnswers: { en: ['Compost'], fr: ['Compost'] }
+  },
+  {
+    image: baseImageUrl + 'paper-plates.png',
+    en:    'Paper plates (unwaxed)',
+    fr:    'Assiettes en papier non cirées',
+    correctAnswers: { en: ['Compost'], fr: ['Compost'] }
+  },
+  {
+    image: baseImageUrl + 'tissue.png',
+    en:    'Tissue',
+    fr:    'Mouchoir',
+    correctAnswers: { en: ['Compost'], fr: ['Compost'] }
+  },
+  {
+    image: baseImageUrl + 'parchment.jpg',
+    en:    'Parchment Paper',
+    fr:    'Papier parchemin',
+    correctAnswers: { en: ['Compost'], fr: ['Compost'] }
+  },
+  {
+    image: baseImageUrl + 'water.png',
+    en:    'Disposable water bottle',
+    fr:    'Bouteille d’eau jetable',
+    correctAnswers: { en: ['Consignaction Box','Recycle'], fr: ['Consignaction Box','Recycle'] }
+  }
+];  
     function showSection(id) {
       document.getElementById('content').style.display = 'block';
       ['factoidSection','userInfo','diversionSection','gameContainer','finalSection'].forEach(sec => {
